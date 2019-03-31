@@ -1,43 +1,98 @@
 package tests;
 
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 
 import exceptions.ExceptionFichierInexistant;
 import exceptions.ExceptionFichierMalforme;
+import exceptions.ExceptionObjectToCoordsTImpossible;
 import exceptions.ExceptionTabMalForme;
 import source.Carte;
 
 public class TestCarte {
 
-	public static void main(String[] args ) throws ExceptionFichierMalforme, ExceptionTabMalForme, ExceptionFichierInexistant {
-		File valide = new File("G:\\Workspace\\sanic.zip_expanded\\sanic\\RechercheChemin-master.zip_expanded\\RechercheChemin-master\\tests\\map.txt");
+	static File valide = new File("G:\\Workspace\\sanic.zip_expanded\\sanic\\RechercheChemin-master.zip_expanded\\RechercheChemin-master\\tests\\map.txt");
+	static Scanner in = new Scanner(System.in);
+	
+	public static void testCreation() throws ExceptionFichierMalforme, ExceptionFichierInexistant {
+		Carte ok = new Carte(valide);
 		File invalide = new File("");
 		File malforme = new File("G:\\Workspace\\sanic.zip_expanded\\sanic\\RechercheChemin-master.zip_expanded\\RechercheChemin-master\\tests\\inv.txt");
 		
-		Carte ok = new Carte(valide);
+		
 		try {
 			Carte malf = new Carte(malforme);
 		} catch (ExceptionFichierMalforme e) {
 			System.out.println("Fichier malformé : OK");
 		}
 	
-		//ok.afficher();
+		ok.afficher();
 		
-		// test getContenu
+	}
+	
+	public static void testGetContenu() throws ExceptionFichierMalforme, ExceptionFichierInexistant {
+		// test getContenu$
+		Carte ok = new Carte(valide);
 		char c;
-//		try {
-//			c = ok.getContenu(-1, 2);
-//			System.out.println(c);
-//		} catch (NullPointerException n ) {
-//			System.out.println("nullpointer ok");
-//		}
-		
+		try {
+			c = ok.getContenu(-1, 2);
+			
+			System.out.println(c);
+		} catch (NullPointerException n ) {
+			System.out.println("nullpointer ok");
+		}
 		c = ok.getContenu(2, 5);
 		System.out.println(c);
 		
-		Scanner in = new Scanner(System.in);
-		in.nextLine();
+		// test hors bornes
+		char p;
+		try {
+			p = ok.getContenu(555,555);
+		} catch (NullPointerException n) {
+			System.out.println("hors bornes ok");
+		}
+		
+		
+		
+		
+		
+	}
 	
+	public static void testGetSuivant() throws ExceptionFichierMalforme, ExceptionFichierInexistant, ExceptionObjectToCoordsTImpossible {
+		Carte ok = new Carte(valide);
+		int[] standard = {10,10};
+		int[] coord3 = {0,10};
+		int[] coord2 = {0,0};
+ 		List<int[] >suiv = ok.getSuivant(standard);
+ 		List<int[] >suiv3 = ok.getSuivant(coord3);
+ 		List<int[] >suiv2 = ok.getSuivant(coord2);
+		afficher(suiv);
+		afficher(suiv3);
+		afficher(suiv2);
+		
+		
+		
+	}
+	public static void main(String[] args ) throws ExceptionFichierMalforme, ExceptionTabMalForme, ExceptionFichierInexistant, ExceptionObjectToCoordsTImpossible {
+		
+//		testCreation();
+//		testGetContenu();
+		testGetSuivant();
+		
+		
+		
+		in.close();
+	
+	}
+	
+	public static void afficher(List<int[]> t) {
+		System.out.println("\nCoordonnées des suivants: ");
+		for (int[] line : t) {
+			for (int e : line) {
+				System.out.print(e + ",");
+			}
+			System.out.println("\n");
+		}
 	}
 }

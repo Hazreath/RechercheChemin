@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import exceptions.ExceptionFichierInexistant;
 import exceptions.ExceptionFichierMalforme;
+import exceptions.ExceptionObjectToCoordsTImpossible;
 import exceptions.ExceptionTabMalForme;
+import interfaces.IExplorable;
 
 /**
  * Objet carte contenant le labyrinthe à étudier dans une matrice de caractères
@@ -17,7 +20,7 @@ import exceptions.ExceptionTabMalForme;
  * @author b.camp
  * @version 0.1
  */
-public class Carte {
+public class Carte implements IExplorable {
 
 	/** Dimension de la carte utilisée par le projet (2D,3D...) */
 	public final static int DIMENSION = 2;
@@ -29,7 +32,7 @@ public class Carte {
 	/** nom de la carte */
 	private String nom;
 
-	private FileInputStream in;
+//	private FileInputStream in;
 	/** Flux Scanner (lecture) lié au fichier */
 	private Scanner scanner;
 
@@ -39,15 +42,16 @@ public class Carte {
 	private int[] depart;
 	/** coordonnées d'arrivée de la machine dans le labyrinthe */
 	private int[] arrivee;
+	/** Valeurs maximales d'éléments */
+	private int[] valMax;
 
 	/**
-	 * 
-	 * @param src
-	 * @throws ExceptionFichierMalforme
-	 * @throws ExceptionTabMalForme
-	 * @throws ExceptionFichierInexistant
+	 * Constructeur par File, pointant sur la contenu de la carte à instancier
+	 * @param src File pointant sur le fichier à analyser
+	 * @throws ExceptionFichierMalforme si le fichier est malformé
+	 * @throws ExceptionFichierInexistant si le fichier n'existe pas
 	 */
-	public Carte(File src) throws ExceptionFichierMalforme, ExceptionTabMalForme, ExceptionFichierInexistant {
+	public Carte(File src) throws ExceptionFichierMalforme, ExceptionFichierInexistant {
 		try {
 			this.scanner = new Scanner(src);
 
@@ -66,17 +70,11 @@ public class Carte {
 	 *                                  données contenues dans le bandeau du fichier
 	 * @throws ExceptionTabMalForme     @see StrCoordToInt
 	 */
-	public void charger() throws ExceptionFichierMalforme, ExceptionTabMalForme {
-
-		ArrayList<Character> contenu = new ArrayList<Character>();
-		// in = new FileInputStream(source);
-
-		// Récupération des informations de la carte
-		String nom;
+	public void charger() throws ExceptionFichierMalforme {
 
 		this.depart = new int[Carte.DIMENSION];
 		this.arrivee = new int[Carte.DIMENSION];
-		int[] finFichier = new int[Carte.DIMENSION];
+		this.valMax = new int[Carte.DIMENSION];
 
 		String[] temp;
 
@@ -88,13 +86,13 @@ public class Carte {
 			temp = scanner.nextLine().split(Carte.SEPARATEUR);
 			this.arrivee = strCoordToInt(temp);
 			temp = scanner.nextLine().split(Carte.SEPARATEUR);
-			finFichier = strCoordToInt(temp);
+			this.valMax = strCoordToInt(temp);
 		} catch (ExceptionTabMalForme e) {
 			throw new ExceptionFichierMalforme();
 		}
 
 		// Affectation du labyrinthe dans la matrice arrayCarte
-		char[][] arrayCarte = new char[finFichier[1]][finFichier[0]];
+		char[][] arrayCarte = new char[this.valMax[1]][this.valMax[0]]; // x,y
 		String line;
 		for (int i = 0; i < arrayCarte.length && scanner.hasNextLine(); i++) {
 			line = scanner.nextLine();
@@ -163,5 +161,96 @@ public class Carte {
 	public char getContenu(int x, int y) {
 		return ((x > 0 && x < this.contenu.length) && (y > 0 && y < this.contenu[0].length)) ? this.contenu[x][y]
 				: null;
+	}
+	
+	public int[] getDepart() {
+		return this.depart;
+	}
+	
+	public int[] getArrivee() {
+		return this.arrivee;
+	}
+	
+	public void marquerChemin(int[] c) {
+		this.contenu[c[0]][c[1]] = 'O';
+	}
+
+	@Override
+	public boolean estArrivee(Object aAnalyser) throws ExceptionObjectToCoordsTImpossible {
+		
+		
+		int[] a = objectToCoords(aAnalyser);
+		int i;
+		// si toutes les coordonnées sont égales alors i == DIMENSION
+		for (i = 0; i < Carte.DIMENSION && a[i] == this.arrivee[i]; i++ ); // empty body
+		
+
+		return i == Carte.DIMENSION;
+	}
+
+	
+	
+	/**
+	 * Convertit une instance Object d'origine int[] (de dimension égale à celle du projet) en int[];
+	 * @param arg Object à convertir
+	 * @return int[] de dimension valide
+	 * @throws ExceptionObjectToCoordsTImpossible si la case argument
+	 *         n'est pas de dimension égale à celle du projet
+	 */
+	public int[] objectToCoords(Object arg) throws ExceptionObjectToCoordsTImpossible {
+		if (!(arg instanceof int[])) {
+			throw new ExceptionObjectToCoordsTImpossible();
+		}
+		
+		int[] a = (int[]) arg;
+		
+		if (a.length != Carte.DIMENSION) {
+			throw new ExceptionObjectToCoordsTImpossible();
+		}
+		
+		return a;
+		
+	}
+
+	@Override
+	/**
+	 * Retourne la List des coordonnées des suivants de la case aAnalyser
+	 * @param aAnalyser Object, instance de int[], représentant les coordonnées de 
+	 *                  la case dont on veut les suivants
+	 * @return List<int[]> contenant la liste des suivants de la case aAnalyser
+	 * @throws ExceptionObjectToCoordsTImpossible si la case argument
+	 *         n'est pas de dimension égale à celle du projet
+	 */
+	public List<int[]> getSuivant(Object aAnalyser) throws ExceptionObjectToCoordsTImpossible {
+		ArrayList<int[]> listeSuiv = new ArrayList<int[]>();
+		int[] indice = objectToCoords(aAnalyser); // coordonnées case init
+		int[] temp;
+		System.out.print("indice : " ); aff(indice);
+		for (int i = 0; i < Carte.DIMENSION; i++) {
+				if (indice[i] > 0) { // admet un suivant à la case d'avant
+					temp = indice.clone();
+					temp[i] = temp[i] - 1;
+					listeSuiv.add(temp);
+						
+				}
+				
+				if (indice[i] < valMax[i]) { // admet un suivant à la case d'après
+					temp = indice.clone();
+					temp[i] = temp[i] + 1;
+					listeSuiv.add(temp);
+					
+					
+				}
+			
+			
+		}
+		return (List<int[]>)listeSuiv;
+	}
+	
+	public static void aff(int[] t) {
+		for (int i : t) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
 	}
 }
