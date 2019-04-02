@@ -2,4 +2,5 @@ PROJET RECHERCHE CHEMIN
 
 
 TODO :
-- ChargerCarte : Plus d'exceptions (format fichier invalide ..)
+- Tests d'intégrations Carte et Resultat
+- Algos et classe de gestion d'algo
