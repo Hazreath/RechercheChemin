@@ -1,6 +1,7 @@
 package tests;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Scanner;
 
@@ -8,14 +9,16 @@ import exceptions.ExceptionFichierInexistant;
 import exceptions.ExceptionFichierMalforme;
 import exceptions.ExceptionObjectToCoordsTImpossible;
 import exceptions.ExceptionTabMalForme;
-import source.Carte;
+import models.Carte;
 
 public class TestCarte {
-
-	static File valide = new File("G:\\Workspace\\sanic.zip_expanded\\sanic\\RechercheChemin-master.zip_expanded\\RechercheChemin-master\\tests\\map.txt");
+	static URL lel = ClassLoader.class.getClassLoader().getResource("map.txt");
+	
+	static File valide = new File(lel.getPath());
 	static Scanner in = new Scanner(System.in);
 	
 	public static void testCreation() throws ExceptionFichierMalforme, ExceptionFichierInexistant {
+		System.out.println(lel.getPath());
 		Carte ok = new Carte(valide);
 		File invalide = new File("");
 		File malforme = new File("G:\\Workspace\\sanic.zip_expanded\\sanic\\RechercheChemin-master.zip_expanded\\RechercheChemin-master\\tests\\inv.txt");
