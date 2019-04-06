@@ -34,5 +34,9 @@ public interface IExplorable<T> {
 	 */
 	public T getDepart();
 
+	public void marquer(T sommet);
+
+	public boolean estMarque(T voisin);
+
 
 }
