@@ -33,6 +33,16 @@ public interface IExplorable<T> {
 	 * @return coordonnées de la case départ
 	 */
 	public T getDepart();
+	
+	public boolean isDepart(T sommet);
+
+	public void marquer(T sommet);
+
+	public boolean estMarque(T voisin);
+
+	public T getArrivee();
+	
+	
 
 
 }
