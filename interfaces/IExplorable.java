@@ -26,13 +26,41 @@ public interface IExplorable<T> {
 	 * @return
 	 * @throws ExceptionObjectToCoordsTImpossible 
 	 */
-	public T getSuivant(T aAnalyser) throws ExceptionObjectToCoordsTImpossible;
+	public List<T> getSuivant(T aAnalyser) throws ExceptionObjectToCoordsTImpossible;
 	
 	/**
 	 * Retourne la case départ relative à la carte
 	 * @return coordonnées de la case départ
 	 */
 	public T getDepart();
+	
+	/**
+	 * Retourne la case arivée relative à la carte
+	 * @return coordonnées de la case arrivée
+	 */
+	public T getArrivee();
+	
+	/**
+	 * Indique si la case argument est le départ de la carte
+	 * @param sommet case à analyser
+	 * @return true si sommet est la case départ
+	 */
+	public boolean isDepart(T sommet);
+
+	/**
+	 * Marque d'un caractère la case sommet de la carte argument
+	 * @param sommet case à marquer
+	 */
+	public void marquer(T sommet);
+
+	/**
+	 * Indique si la case argument est marquée
+	 * @param voisin
+	 * @return
+	 */
+	public boolean estMarque(T voisin);
+	
+	
 
 
 }
